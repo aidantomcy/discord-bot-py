@@ -31,9 +31,7 @@ whatami = [
 def get_quote():
     response = requests.get('https://zenquotes.io/api/random')
     json_data = json.loads(response.text)
-    quote = json_data[0]['q'] + " - " + json_data[0]['a']
-    
-    return quote
+    return json_data[0]['q'] + " - " + json_data[0]['a']
 
 
 @client.event
@@ -67,19 +65,17 @@ async def on_message(msg):
         api_key = os.getenv('TENOR_KEY')
         keywords = 'dog'
         url = f"https://g.tenor.com/v1/search?q={keywords}&key={api_key}&contentfilter=high"
-        gifs = []
         response = requests.get(url)
 
         if len(tokens) > 1:
             # keywords = tokens.slice(1, len(tokens)).join(" ")
-            keywords = tokens[1:len(tokens)].join(" ")
-        keywords = ' '.join(tokens[1:len(tokens)])
-            
+            keywords = tokens[1:].join(" ")
+        keywords = ' '.join(tokens[1:])
+                    
 
         if response.status_code == 200:
             data = response.json()
-            for item in data['results']:
-                gifs.append(item['media'][0]['gif']['url'])
+            gifs = [item['media'][0]['gif']['url'] for item in data['results']]
             await msg.channel.send(random.choice(gifs))
         else:
             await msg.channel.send('Something went wrong')
